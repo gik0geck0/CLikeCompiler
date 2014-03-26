@@ -1,0 +1,31 @@
+S -> Stmts $
+Stmts -> lambda
+       | Stmt semi
+       | Stmt semi Stmts
+Stmt -> VarDecl
+      | ReturnStmt
+      | IfStmt
+      | VarAssn
+VarDecl -> Type Vars
+Vars -> id equals Expr
+      | id comma Vars
+      | id
+      | id equals Expr comma Vars
+ReturnStmt -> return Expr
+VarAssn -> LValue equals Expr
+LValue -> id
+IfStmt -> if lparen Expr rparen lbrace Stmts rbrace
+        | if lparen Expr rparen lbrace Stmts rbrace else lbrace Stmts rbrace
+Type -> int
+      | const int
+Expr -> Term
+      | Term plus Term
+      | Term minus Term
+Term -> Part
+      | Part times Part
+      | Part div Part
+      | Part rshift Part
+      | Part lshift Part
+Part -> id
+      | num
+      | lparen Expr rparen
