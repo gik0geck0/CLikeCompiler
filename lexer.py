@@ -4,7 +4,7 @@ import ply.lex as lex
 
 # List of token names.   This is always required
 tokens = (
-    'NUMBER',
+    'NUM',
 
     'PLUS',
     'MINUS',
@@ -23,6 +23,10 @@ tokens = (
     'COMMA',
     'COMMENT',
     'SEMICOL',
+
+    'RETURN',
+    'IF',
+    'ELSE',
     'SYMBOL',
 )
 
@@ -45,10 +49,16 @@ t_RCURLY    = r'}'
 
 t_COMMA     = r','
 t_SEMICOL   = r';'
-t_SYMBOL    = r'[a-zA-Z][a-zA-Z]*'
+
+# Reserved keywords
+t_IF        = r'if'
+t_ELSE      = r'else'
+t_RETURN    = r'return'
+
+t_ID    = r'[a-zA-Z_][a-zA-Z0-9_]*'
 
 # A regular expression rule with some action code
-def t_NUMBER(t):
+def t_NUM(t):
     r'\d+'
     t.value = int(t.value)
     return t

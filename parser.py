@@ -1,79 +1,132 @@
 
-import sys
-import ply.lex as lex
+# BNF for our C-Like language
+# S -> Stmts
+#
+# Stmts -> lambda
+#       | Stmt; Stmts
+# Stmt -> ReturnStmt
+#       | IfStmt
+#       | VarAssn
+#       | VarDecl
+#
+# ReturnStmt -> return Expr
+# VarAssn -> LValue = Expr
+#
+# VarDecl -> Type Vars
+# Type -> Qualifiers int
+# Qualifiers -> lambda
+#               | Qualifier Qualifiers
+# Qualifier -> const
+#
+# Vars -> ID = Expr
+#       | ID, Vars
+#       | ID
+#       | ID = Expr, Vars
+# Expr -> Term
+#       | Term plus Term
+#       | Term minus Term
+# Term -> Part
+#       | Part times Part
+#       | Part div Part
+#       | Part rshift Part
+#       | Part lshift Part
+# Part -> id
+#       | num
+#       | lparen Expr rparen
+# 
 
-# List of token names.   This is always required
-tokens = (
-    'NUMBER',
+import ply.yacc as yacc
+import lexer
 
-    'PLUS',
-    'MINUS',
-    'TIMES',
-    'DIVIDE',
+tokens = lexer.tokens
 
-    'EQUALS',
-    'LTHAN',
-    'GTHAN',
+def p_start(p):
+    'start : statements'
 
-    'LPAREN',
-    'RPAREN',
-    'LCURLY',
-    'RCURLY',
+def p_statements_empty(p):
+    'statements : epsilon'
+    p[0] = []
 
-    'COMMA',
-    'COMMENT',
-    'SEMICOL',
-    'SYMBOL',
-)
+def p_statements_one(p):
+    'statements : statement SEMICOL statements'
+    p[0] = p[2].append(p[1])
 
-# Regular expression rules for simple tokens
-t_PLUS      = r'\+'
-t_MINUS     = r'-'
-t_TIMES     = r'\*'
 
-t_COMMENT   = r'//.*$'
-t_DIVIDE    = r'/'
+def p_statement(p):
+    '''statement : returnstmt
+                 | ifstmt
+                 | varassign
+                 | vardecl'''
+    p[0] = p[1]
 
-t_EQUALS    = r'='
-t_LTHAN     = r'<'
-t_GTHAN     = r'>'
+def p_returnstmt(p):
+    'returnstmt : RETURN expr'
+    p[0] = ('RETURN', p[2])
 
-t_LPAREN    = r'\('
-t_RPAREN    = r'\)'
-t_LCURLY    = r'{'
-t_RCURLY    = r'}'
+def p_varassign(p):
+    'varassign : SYMBOL EQUALS expr'
+    p[0] = ('ASSIGN', p[1], p[3])
 
-t_COMMA     = r','
-t_SEMICOL   = r';'
-t_SYMBOL    = r'[a-zA-Z][a-zA-Z]*'
+def p_vardecl(p):
+    'vardecl : type vars'
+    p[0] = ('DECLARE', p[1], p[2])
 
-# A regular expression rule with some action code
-def t_NUMBER(t):
-    r'\d+'
-    t.value = int(t.value)
-    return t
+def p_ifstmt(p):
+    '''ifstmt : IF LPAREN boolexpr RPAREN LCURLY stmts RCURLY
+              | IF LPAREN boolexpr RPAREN LCURLY stmts RCURLY ELSE stmt SEMICOL
+              | IF LPAREN boolexpr RPAREN LCURLY stmts RCURLY ELSE LCURLY stmts RCURLY'''
+    if len(p) > 8:
+        # Has an else
+        # The ternary-like part differentiates where the stmt/stmts come from
+        p[0] = ('IF', p[3], 'THEN', p[6], 
+                'ELSE', p[10] if len(p) > 11 else p[9])
+    else:
+        p[0] = ('IF', p[3], 'THEN', p[6])
 
-# Define a rule so we can track line numbers
-def t_newline(t):
-    r'\n+'
-    t.lexer.lineno += len(t.value)
+def p_type(p):
+    'type : qualifiers INT'
+    p[0]
 
-# A string containing ignored characters (spaces and tabs)
-t_ignore  = ' \t'
+def p_qualifiers(p):
+    '''qualifiers : qualifier
+                  | qualifier qualifiers'''
 
-# Error handling rule
-def t_error(t):
-    print("Illegal character '%s'" % t.value[0])
-    t.lexer.skip(1)
+def p_qualifier(p):
+    'qualifier : CONST'
 
-# Build the lexer
-lexer = lex.lex()
+def p_vars(p):
+    '''vars : ID EQUALS expr
+            | ID COMMA vars
+            | ID
+            | ID EQUALS expr COMMA vars'''
 
-# Give it some data
-lexer.input(sys.stdin.read())
+def p_boolexpr(p):
+    '''boolexpr : expr LTHAN expr
+                | expr GTHAN expr
+                | expr EQUALS EQUALS expr'''
 
-# Tokenize
-while True:
-    tok = lexer.token()
-    if not tok: break      # No more input
-    print(tok)
+def p_expr(p):
+    '''expr : term
+            | term PLUS term
+            | term MINUS term'''
+
+def p_term(p):
+    '''term : part
+            | part TIMES part
+            | part DIV part
+            | part LSHIFT part
+            | part RSHIFT part'''
+
+def p_part(p):
+    '''part : ID
+            | NUM
+            | LPAREN expr RPAREN'''
+
+def p_error(p):
+    print("Syntax error at '%s'" % p.value)
+
+yacc.yacc()
+parseTree = yacc.parse(mylexer.data)
+
+print(parseTree)
+
