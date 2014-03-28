@@ -2,41 +2,41 @@
 # Rule 0     S' -> program
 # Rule 1     program -> statements
 # Rule 2     statements -> statement
-# Rule 3     statements -> statement SEMICOL statements
+# Rule 3     statements -> statement statements
 # Rule 4     statement -> returnstmt SEMICOL
 # Rule 5     statement -> ifstmt
 # Rule 6     statement -> varassign SEMICOL
 # Rule 7     statement -> vardecl SEMICOL
 # Rule 8     returnstmt -> RETURN expr
 # Rule 9     varassign -> ID EQUALS expr
-# Rule 10    vardecl -> type vars
+# Rule 10    vardecl -> typeconstructor vars
 # Rule 11    ifstmt -> IF LPAREN boolexpr RPAREN LCURLY statements RCURLY
 # Rule 12    ifstmt -> IF LPAREN boolexpr RPAREN LCURLY statements RCURLY ELSE statement SEMICOL
 # Rule 13    ifstmt -> IF LPAREN boolexpr RPAREN LCURLY statements RCURLY ELSE LCURLY statements RCURLY
-# Rule 14    type -> qualifier type
-# Rule 15    type -> INT
-# Rule 16    qualifier -> CONST
-# Rule 17    vars -> ID EQUALS expr
-# Rule 18    vars -> ID COMMA vars
-# Rule 19    vars -> ID
-# Rule 20    vars -> ID EQUALS expr COMMA vars
-# Rule 21    boolexpr -> expr LTHAN expr
-# Rule 22    boolexpr -> expr GTHAN expr
-# Rule 23    boolexpr -> expr LTHAN EQUALS expr
-# Rule 24    boolexpr -> expr GTHAN EQUALS expr
-# Rule 25    boolexpr -> expr EQUALSEQUALS expr
-# Rule 26    expr -> term
-# Rule 27    expr -> term PLUS term
-# Rule 28    expr -> term MINUS term
-# Rule 29    term -> part
-# Rule 30    term -> part TIMES part
-# Rule 31    term -> part DIVIDE part
-# Rule 32    term -> part LSHIFT part
-# Rule 33    term -> part RSHIFT part
-# Rule 34    part -> ID
-# Rule 35    part -> NUM
-# Rule 36    part -> LPAREN expr RPAREN
-
+# Rule 14    typeconstructor -> qualifier typeconstructor
+# Rule 15    typeconstructor -> type
+# Rule 16    type -> INT
+# Rule 17    qualifier -> CONST
+# Rule 18    vars -> ID EQUALS expr
+# Rule 19    vars -> ID COMMA vars
+# Rule 20    vars -> ID
+# Rule 21    vars -> ID EQUALS expr COMMA vars
+# Rule 22    boolexpr -> expr LTHAN expr
+# Rule 23    boolexpr -> expr GTHAN expr
+# Rule 24    boolexpr -> expr LTHAN EQUALS expr
+# Rule 25    boolexpr -> expr GTHAN EQUALS expr
+# Rule 26    boolexpr -> expr EQUALSEQUALS expr
+# Rule 27    expr -> term
+# Rule 28    expr -> term PLUS term
+# Rule 29    expr -> term MINUS term
+# Rule 30    term -> part
+# Rule 31    term -> part TIMES part
+# Rule 32    term -> part DIVIDE part
+# Rule 33    term -> part LSHIFT part
+# Rule 34    term -> part RSHIFT part
+# Rule 35    part -> ID
+# Rule 36    part -> NUM
+# Rule 37    part -> LPAREN expr RPAREN
 
 # Original BNF for our C-Like language
 # S -> Stmts
