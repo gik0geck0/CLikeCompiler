@@ -59,14 +59,16 @@ t_RCURLY    = r'}'
 t_COMMA     = r','
 t_SEMICOL   = r';'
 
-# Reserved keywords
-t_IF        = r'if'
-t_ELSE      = r'else'
-t_RETURN    = r'return'
-t_INT       = r'int'
-t_CONST     = r'const'
-
-t_ID    = r'[a-zA-Z_][a-zA-Z0-9_]*'
+# MAJOR NOTE:
+# Rules defined only by string are added with the longest REGEX first.
+# Functions, however, are added in the order they appear
+# t_IF        = r'if'
+# t_ELSE      = r'else'
+# t_RETURN    = r'return'
+# t_INT       = r'int'
+# t_CONST     = r'const'
+# 
+# t_ID    = r'[a-zA-Z_][a-zA-Z0-9_]*'
 
 # A regular expression rule with some action code
 def t_NUM(t):
@@ -82,6 +84,31 @@ def t_newline(t):
 def t_COMMENT(t):
     r'//.*'
     pass
+
+def t_IF(t):
+    r'if'
+    return t
+
+def t_ELSE(t):
+    r'else'
+    return t
+
+def t_RETURN(t):
+    r'return'
+    return t
+
+def t_INT(t):
+    r'int'
+    return t
+
+def t_CONST(t):
+    r'const'
+    return t
+
+def t_ID(t):
+    r'[a-zA-Z_][a-zA-Z0-9_]*'
+    return t
+
 
 # A string containing ignored characters (spaces and tabs)
 t_ignore  = ' \t'
