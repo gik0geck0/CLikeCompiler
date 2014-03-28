@@ -89,9 +89,9 @@ def p_statements(p):
     if len(p) == 2:
         p[0] = [p[1]]
     else:
-        print("p[2]: %s p[1]: %s" % (p[2], p[1]))
+        # print("p[2]: %s p[1]: %s" % (p[2], p[1]))
         p[0] = [p[1]] + p[2]
-    print("Statements: ", p[0])
+    # print("Statements: ", p[0])
 
 
 def p_statement(p):
@@ -100,7 +100,7 @@ def p_statement(p):
                  | varassign SEMICOL
                  | vardecl SEMICOL'''
     p[0] = p[1]
-    print("Statement: ", p[0])
+    # print("Statement: ", p[0])
 
 def p_returnstmt(p):
     'returnstmt : RETURN expr'
@@ -126,7 +126,7 @@ def p_ifstmt(p):
                 'ELSE', p[10] if len(p) > 11 else p[9])
     else:
         p[0] = ('IF', p[3], 'THEN', p[6])
-    print("IFSTMT", p[0])
+    # print("IFSTMT", p[0])
 
 # -> ( [Qualifer], Type )
 def p_typeconstructor(p):
@@ -174,7 +174,7 @@ def p_boolexpr(p):
         p[0] = (p[2], p[1], p[3])
     else:
         p[0] = (p[2]+p[3], p[1], p[4])
-    print("Bool expr: ", p[0])
+    # print("Bool expr: ", p[0])
 
 def p_expr(p):
     '''expr : term
@@ -205,10 +205,6 @@ def p_part(p):
     else:
         p[0] = p[2]
 
-# Represents an epsilon / lambda / empty string / etc
-# def p_epsilon(p):
-#     'epsilon : '
-
 def p_error(p):
     if p is not None:
         print("Syntax error at '%s'" % p.value)
@@ -218,5 +214,7 @@ def p_error(p):
 yacc.yacc()
 parseTree = yacc.parse(lexer.datainput)
 
-print("ParseTree: ", parseTree)
+import pprint
+pp = pprint.PrettyPrinter(indent=4)
+pp.pprint(parseTree)
 
