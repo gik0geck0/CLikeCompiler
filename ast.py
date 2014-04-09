@@ -3,11 +3,15 @@ from sys import exit
 
 # Contains data structures for the abstract syntax tree, as well as the visitation rights
 
+nextid = 0
 # Abstract Node definition. It contains the bare minimum that ALL nodes must have
 class Node:
     def __init__(self, kind, data=None, father=None, leftmostChild=None, leftmostSibling=None, rightSibling=None):
         self.kind = kind
         self.data = data
+        global nextid
+        self.simple_id = nextid
+        nextid += 1
 
         # Traditionally, the term "parent" is used...
         # But I made a joke at the end of adoptChildren
@@ -66,13 +70,13 @@ class Node:
 
         # Return a reference to the right-most sibling
         # print("makeSiblings is returning self (%s)'s the rightMostSibling: %s" % (self, self.getRightMostSibling()))
-        print("New Sibling chain: %s" % leftHead.prettySiblings())
+        # print("New Sibling chain: %s" % leftHead.prettySiblings())
         return self
 
     def getSiblings(self):
         '''Generator that allows iteration across ALL the siblings from left to right'''
         # Start with the left side of the list
-        seek = self.leftmostChild
+        seek = self.leftmostSibling
 
         while seek is not None:
             yield seek
@@ -152,15 +156,34 @@ class Node:
 
     def prettyPrintStructure(self):
         '''Prints the node itself, all its siblings, and all its children'''
-        print(self.prettySiblings())
+        # print(self.prettySiblings())
 
-        for sib in self.getSiblings():
-            if (sib is not self.leftmostChild
-                and sib.leftmostChild is not None):
-                print(sib.__repr__() + " -> " + sib.leftmostChild.__repr__())
+        # Show yourself
+        print(self.__repr__())
 
+        # Who are my children?
         if self.leftmostChild is not None:
-            self.leftmostChild.prettyPrintStructure()
+            # print(repr(self) + " has at least one child: " + repr(self.leftmostChild) + " : " + repr(self.leftmostChild.rightSibling))
+            for child in self.leftmostChild.getSiblings():
+                # print("Child: " + repr(child))
+                print(repr(self) + " -> " + repr(child))
+                child.prettyPrintStructure()
+            # print("End of children")
+
+        # for sib in self.getSiblings():
+        #     if (sib is not self.leftmostChild
+        #         and sib.leftmostChild is not None):
+        #         print(sib.__repr__() + " -> " + sib.leftmostChild.__repr__())
+        #         sib.leftmostChild.prettyPrintStructure()
+
+        # if self.leftmostChild is not None:
+        #     self.leftmostChild.prettyPrintStructure()
+
+    def accept(self, visitor):
+        # Visit all my children if I have any
+        if self.leftmostChild is not None:
+            for child in self.leftmostChild.getSiblings():
+                visitor.visit(child)
 
 def makeNode(op):
     '''
@@ -173,9 +196,9 @@ def makeFamily(op, *kids):
     # print("Making family with op %s and kid[0] %s" % (op, kids[0]))
     # print("kids with children: %s" % kids[0].associateSiblings(*kids[1:]))
     newFam = makeNode(op).adoptChildren(kids[0].associateSiblings(*kids[1:]))
-    print("New Family:")
-    newFam.prettyPrintStructure()
-    print("")
+    # print("New Family:")
+    # newFam.prettyPrintStructure()
+    # print("")
     return newFam
 
 
@@ -190,3 +213,23 @@ def makeFamily(op, *kids):
 class Visitor:
     def visit(self, node):
         node.accept(self)
+
+class PrintVisitor(Visitor):
+    def __init__(self):
+        self.idcount = 0
+
+    def prettyChildren(self, node):
+        return "%s" % (id(node))
+
+    def visit(self, node):
+        print("%s\t%s\t%s" % (id(node), node.kind, node.data))
+
+        if node.leftmostChild is not None:
+            print(id(node), end=" ")
+            for child in node.leftmostChild.getSiblings():
+                print(id(child), end=" ")
+            print()
+
+        self.idcount+=1
+        # print(type(super()))
+        super().visit(node)

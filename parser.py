@@ -154,9 +154,11 @@ def p_error(p):
 yacc.yacc()
 parseTree = yacc.parse(lexer.datainput)
 
-print("")
-print("Parse Tree:")
-parseTree.prettyPrintStructure()
+# print("Parse Tree:")
+# parseTree.prettyPrintStructure()
+
+# print("Visitation tree:")
+ast.PrintVisitor().visit(parseTree)
 
 # import pprint
 # pp = pprint.PrettyPrinter(indent=4)
