@@ -45,7 +45,7 @@ def p_varassign(p):
 
 def p_vardecl(p):
     'vardecl : typeconstructor vars'
-    p[0] = makeFamily('DECLARE', p[1], p[2])
+    p[0] = makeFamily('DECLARESET', p[1], p[2])
 
 def p_ifstmt(p):
     '''ifstmt : IF LPAREN boolexpr RPAREN LCURLY statements RCURLY

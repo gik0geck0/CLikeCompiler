@@ -185,17 +185,17 @@ class Node:
             for child in self.leftmostChild.getSiblings():
                 visitor.visit(child)
 
-def makeNode(op):
+def makeNode(data, kind=None):
     '''
     Based on the type of op, make a specific node type.
     '''
-    return Node(None, op)
+    return Node(kind, data)
 
-def makeFamily(op, *kids):
+def makeFamily(kind, *kids):
     # It's a bit important that if no kids are passed in, then adoptChildren just won't do anything
     # print("Making family with op %s and kid[0] %s" % (op, kids[0]))
     # print("kids with children: %s" % kids[0].associateSiblings(*kids[1:]))
-    newFam = makeNode(op).adoptChildren(kids[0].associateSiblings(*kids[1:]))
+    newFam = makeNode(None, kind).adoptChildren(kids[0].associateSiblings(*kids[1:]))
     # print("New Family:")
     # newFam.prettyPrintStructure()
     # print("")
@@ -222,7 +222,7 @@ class PrintVisitor(Visitor):
         return "%s" % (id(node))
 
     def visit(self, node):
-        print("%s\t%s\t%s" % (id(node), node.kind, node.data))
+        print("%s\t%s" % (id(node), node.kind if node.kind is not None else node.data))
 
         if node.leftmostChild is not None:
             print(id(node), end=" ")
