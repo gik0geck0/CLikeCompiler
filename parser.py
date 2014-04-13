@@ -13,9 +13,10 @@ tokens = lexer.tokens
 def p_program(p):
     'program : statements'
     p[0] = makeFamily('PROGRAM', p[1])
+    p.set_lineno(0, p.lineno(1))
 
 # Returns a single statement node, which is the left-most sibling in its set
-def p_statements(p):
+def p_statementso(p):
     '''statements : statement
                 | statement statements'''
     if len(p) == 2:
@@ -26,6 +27,7 @@ def p_statements(p):
         # So all we need to do is add it and its siblings to the right
         # of p[1]
         p[0] = p[1].makeSiblings(p[2])
+    p.set_lineno(0, p.lineno(1))
 
 def p_statement(p):
     '''statement : returnstmt SEMICOL
@@ -34,18 +36,22 @@ def p_statement(p):
                  | vardecl SEMICOL'''
     # Alternation of semicolon-statements, so no node-association logic
     p[0] = p[1]
+    p.set_lineno(0, p.lineno(1))
 
 def p_returnstmt(p):
     'returnstmt : RETURN expr'
     p[0] = makeFamily('RETURN', p[2])
+    p.set_lineno(0, p.lineno(2))
 
 def p_varassign(p):
     'varassign : ID EQUALS expr'
     p[0] = makeFamily('ASSIGN', makeNode(p[1]), p[3])
+    p.set_lineno(0, p.lineno(1))
 
 def p_vardecl(p):
     'vardecl : typeconstructor vars'
     p[0] = makeFamily('DECLARESET', p[1], p[2])
+    p.set_lineno(0, p.lineno(1))
 
 def p_ifstmt(p):
     '''ifstmt : IF LPAREN boolexpr RPAREN LCURLY statements RCURLY
@@ -61,6 +67,7 @@ def p_ifstmt(p):
         # p[0] = ('IF', p[3], 'THEN', p[6])
         p[0] = makeFamily('IF', p[3], p[6], makeNode())
     # print("IFSTMT", p[0])
+    p.set_lineno(0, p.lineno(1))
 
 # -> ( [Qualifer], Type )
 def p_typeconstructor(p):
@@ -72,14 +79,17 @@ def p_typeconstructor(p):
         p[0] = p[2].makeSiblings(p[1])
     else:
         p[0] = p[1]
+    p.set_lineno(0, p.lineno(1))
 
 def p_type(p):
     ''' type : INT'''
     p[0] = makeNode(p[1])
+    p.set_lineno(0, p.lineno(1))
 
 def p_qualifier(p):
     'qualifier : CONST'
     p[0] = makeNode(p[1])
+    p.set_lineno(0, p.lineno(1))
 
 def p_vars(p):
     '''vars : ID
@@ -99,6 +109,7 @@ def p_vars(p):
             p[0] = makeFamily('DECLARE', makeNode(p[1]), p[3])
     else:
         p[0] = makeFamily('DECLARE', makeNode(p[1])).makeSiblings(p[3])
+    p.set_lineno(0, p.lineno(1))
 
 def p_boolexpr(p):
     '''boolexpr : expr LTHAN expr
@@ -113,6 +124,7 @@ def p_boolexpr(p):
         p[0] = makeFamily(p[2], p[1], p[3])
     else:
         p[0] = makeFamily(p[2]+p[3], p[1], p[4])
+    p.set_lineno(0, p.lineno(1))
 
 def p_expr(p):
     '''expr : term
@@ -123,6 +135,7 @@ def p_expr(p):
     else:
         # Creates an oprator node that's strung with the terms to opreate on as its children
         p[0] = makeFamily(p[2], p[1], p[3])
+    p.set_lineno(0, p.lineno(1))
 
 def p_term(p):
     '''term : part
@@ -135,6 +148,7 @@ def p_term(p):
     else:
         # Creates an operator node that's strung with the parts to operate on as its children
         p[0] = makeFamily(p[2], p[1], p[3])
+    p.set_lineno(0, p.lineno(1))
 
 def p_part(p):
     '''part : ID
@@ -144,10 +158,18 @@ def p_part(p):
         p[0] = makeNode(p[1])
     else:
         p[0] = p[2]
+    p.set_lineno(0, p.lineno(1))
+
+def find_column(input,token):
+    last_cr = input.rfind('\n',0,token.lexpos)
+    if last_cr < 0:
+        last_cr = -1
+    column = (token.lexpos - last_cr)
+    return column
 
 def p_error(p):
     if p is not None:
-        print("Syntax error at '%s'" % p.value)
+        print("Syntax error at '%s', line %d, column %d" % (p.value, p.lineno, find_column(lexer.datainput,p)))
     else:
         print("Syntax error at Null. WTF")
 

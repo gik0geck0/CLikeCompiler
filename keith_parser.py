@@ -5,6 +5,7 @@ tokens = keith_lexer.tokens
 
 def p_sentence(p):
     '''sentence : SUBJECT VERB object'''
+    print(p)
     p[0] = (p[1], p[2], p[3])
 
 def p_object(p):

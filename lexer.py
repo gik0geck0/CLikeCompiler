@@ -80,8 +80,9 @@ def t_NUM(t):
 def t_newline(t):
     r'\n+'
     t.lexer.lineno += len(t.value)
+    t.lexer.line_lexpos = t.lexpos
 
-def t_COMMENT(t):
+def t_ignore_COMMENT(t):
     r'//.*'
     pass
 
@@ -109,23 +110,30 @@ def t_ID(t):
     r'[a-zA-Z_][a-zA-Z0-9_]*'
     return t
 
-
 # A string containing ignored characters (spaces and tabs)
 t_ignore  = ' \t'
 
+def find_column(input,token):
+    last_cr = input.rfind('\n',0,token.lexpos)
+    if last_cr < 0:
+        last_cr = -1
+    column = (token.lexpos - last_cr)
+    return column
+
 # Error handling rule
 def t_error(t):
-    print("Illegal character '%s'" % t.value[0])
+    print("Illegal character '%s' at line %d, column %d" % (t.value[0], t.lineno, find_column(datainput, t)))
     t.lexer.skip(1)
 
 # Build the lexer
 lexer = lex.lex()
-
-# Give it some data
 datainput = sys.stdin.read()
-lexer.input(datainput)
 
-# Tokenize
-while True:
-    tok = lexer.token()
-    if not tok: break      # No more input
+if __name__ == '__main__':
+    # Give it some data
+    lexer.input(datainput)
+
+    # Tokenize
+    while True:
+        tok = lexer.token()
+        if not tok: break      # No more input
