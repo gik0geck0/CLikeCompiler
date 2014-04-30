@@ -1,0 +1,9 @@
+happy-plus-alex
+
+-- Object files
+*.hi
+*.o
+
+-- Executables
+clikeparser
+examplehappy
